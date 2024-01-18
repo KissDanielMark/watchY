@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<meta charset="utf-8">
+	<link href="https://fonts.googleapis.com/css2?family=Concert+One&amp;display=swap" rel="stylesheet" />
+	<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;700&amp;display=swap" rel="stylesheet" />
+	<link href="watchy7.png" rel="icon" />
+	<link href="watcHyRemote.css" rel="stylesheet" type="text/css" />
+	<script id="spHTMLFormElementPrototypeScript">(function()
+  {
+    try
+    {
+      var sp_old_HTMLFormElementPrototype_submit = HTMLFormElement.prototype.submit;
+      HTMLFormElement.prototype.submit = function(AEvent)
+      {
+        try
+        {
+          var spEvent = document.createEvent('Event');
+          spEvent.initEvent('sp_submit', true, true);
+          this.dispatchEvent(spEvent);
+        }
+        catch(ErrorMessage)
+        {
+          console.error('spFormElementPrototype() Error sending "sp_submit" event from HTMLFormElement.prototype.submit: ' + ErrorMessage);
+        }
+        sp_old_HTMLFormElementPrototype_submit.apply(this);
+      };
+    }
+    catch(ErrorMessage)
+    {
+      console.error('spFormElementPrototype() Error attaching to HTMLFormElement.prototype.submit: ' + ErrorMessage);
+    }
+
+    try
+    {
+      if (typeof __doPostBack == 'function')
+      {
+        var sp_old__doPostBack = __doPostBack;
+        __doPostBack = function(eventTarget, eventArgument)
+        {
+          try
+          {
+            var spEvent = document.createEvent('Event');
+            spEvent.initEvent('sp_submit', true, true);
+            window.dispatchEvent(spEvent);
+          }
+          catch(ErrorMessage)
+          {
+            console.error('spFormElementPrototype() Error sending "sp_submit" event from __doPostBack(): ' + ErrorMessage);
+          }
+          sp_old__doPostBack(eventTarget, eventArgument);
+        };      
+      }
+    }
+    catch(ErrorMessage)
+    {
+      console.error('spFormElementPrototype() Error attaching to __doPostBack(): ' + ErrorMessage);
+    }
+  })();</script>
+</head>
+<body>
+
+<p id="demo">State</p>
+
+<button  id="lejatszasGomb" onclick="playVid()" type="button">▶</button>
+<br>
+<button id="megallasGomb" onclick="pauseVid()" type="button">❙❙</button>
+
+<script type="text/javascript" src="watcHyRemote.js"></script></p>
+</body>
+</html>

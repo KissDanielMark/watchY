@@ -1,0 +1,77 @@
+  body 
+  {
+    background-color: #000000;
+  }
+  button
+  {
+    color: navy;
+    background-color: yellow;
+    font-size: large;
+    font-family: 'Concert One', cursive;
+  }
+  p
+  {
+    color: red;
+    font-family: 'Montserrat', sans-serif;
+  }
+  h1
+  {
+    font-family: 'Concert One', cursive;
+    color: yellow;
+    font-size: 70px;
+    position: relative;
+
+  }
+  h2
+  {
+    font-family: 'Montserrat', sans-serif;
+    color: yellow;
+    font-size: 55px;
+    position: relative;
+  }
+
+  #outer
+  {
+    width:100%;
+    text-align: center;
+  }
+
+  #outer2
+  {
+    width:100%;
+    text-align: center;
+  }
+  .inner
+  {
+    display: inline-block;
+    
+  }
+  #fajl
+  {
+    font-family: 'Montserrat', sans-serif;
+    color: yellow;
+  }
+  
+  #lejatszasGomb
+  {
+      width: 100%;
+      height: 500px;
+      background-color: green;
+      font-size: 150px;
+  }
+  #megallasGomb
+  {
+      width: 100%;
+      height: 500px;
+      font-size: 150px;
+  }
+  
+  
+.center {
+  //float: right;
+  //background-color: red;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 10%;
+}
