@@ -10,6 +10,8 @@ $(document).ready(function () {
   // Event listener for when the connection is opened
   socket.addEventListener("open", (event) => {
     console.log("Connected to WebSocket server");
+    document.getElementById("connectionStatus").innerHTML =
+      "Connection: Connected";
     // Send a message to the server
     socket.send("Hello, server!");
   });
@@ -34,6 +36,8 @@ $(document).ready(function () {
   // Event listener for when the connection is closed
   socket.addEventListener("close", (event) => {
     console.log("Disconnected from WebSocket server");
+    document.getElementById("connectionStatus").innerHTML =
+      "Connection: Disconnected";
   });
 
   $("#startButton").on("click", function () {
