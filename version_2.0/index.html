@@ -1,14 +1,62 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>WebSocket Client</title>
-    <script src="jquery-3.6.0.min.js"></script>
-    <script src="client.js"></script>
+    <title></title>
+
+    <meta charset="utf-8" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Concert+One&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link href="watchy7.png" rel="icon" />
+    <link href="watcHy.css" rel="stylesheet" type="text/css" />
   </head>
   <body>
-    <button id="startButton">START</button>
-    <button id="stopButton">STOP</button>
+    <h1 align="center">
+      watcHy <br clear="”right”" /><img
+        src="watchy7.png"
+        alt="watcHy logo"
+        class="center"
+        height="170px"
+      />
+    </h1>
+    &nbsp;&nbsp;
+    <div id="outer">
+      <input id="fajl" type="file" /><br />
+      &nbsp;&nbsp;
+
+      <div class="inner">
+        <button id="getReady" type="button">Load video</button>
+      </div>
+
+      <p id="ido">Time:</p>
+
+      <div class="inner">
+        <button hidden="" id="full" type="button">⎋</button>
+      </div>
+
+      <div class="inner">
+        <button hidden="" id="startButton" type="button">▶</button>
+      </div>
+
+      <div class="inner">
+        <button hidden="" id="stopButton" type="button">❙❙</button>
+      </div>
+
+      <!--TODO: impelment it if its needed
+        <div class="inner">
+        <button hidden="" id="syncButton" type="button">Sync</button>
+      </div>-->
+    </div>
+    <video height="800" hidden="" id="myVideo" width="100%">
+      <source src="" type="video/*" />
+    </video>
+
+    <script src="jquery-3.6.0.min.js"></script>
+    <script src="client.js"></script>
   </body>
 </html>
