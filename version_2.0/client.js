@@ -77,6 +77,12 @@ $(document).ready(function () {
   document.getElementById("full").addEventListener("click", function () {
     openFullscreen();
   });
+
+  document.getElementById("jumpGomb").addEventListener("click", function () {
+    let hova = document.getElementById("jumpIdo").value;
+    vid.currentTime = hova;
+    myTimer();
+  });
 });
 
 function handleMessage(message) {
