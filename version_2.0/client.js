@@ -1,4 +1,4 @@
-const socket = new WebSocket("ws://localhost:3000");
+const socket = new WebSocket("ws://localhost:3000"); //"ws://localhost:3000");//ws://13.53.68.179:3000
 let vid;
 let fajlNev;
 
@@ -18,19 +18,27 @@ $(document).ready(function () {
 
   // Event listener for receiving messages from the server
   socket.addEventListener("message", (event) => {
-    if (event.data instanceof Blob) {
-      // If the received data is a Blob, read its content as text
+    const receivedData = event.data;
+
+    // Check if the received data is a Blob
+    if (receivedData instanceof Blob) {
       const reader = new FileReader();
+
+      // Set up the FileReader onload event to handle the read data
       reader.onload = function () {
-        console.log(`Received message from server: ${reader.result}`);
-        handleMessage(reader.result);
+        try {
+          const jsonData = JSON.parse(reader.result);
+          console.log("Received JSON:", jsonData);
+          handleMessage(jsonData);
+        } catch (error) {
+          console.error("Error parsing JSON:", error);
+        }
       };
-      reader.readAsText(event.data);
+      // Read the contents of the Blob as text
+      reader.readAsText(receivedData);
     } else {
-      // If it's not a Blob, treat it as a string
-      console.log(`Received message from server: ${event.data}`);
+      console.error("Received data is not a Blob:", receivedData);
     }
-    //console.log(`Received message from server: ${event.data}`);
   });
 
   // Event listener for when the connection is closed
@@ -72,20 +80,23 @@ $(document).ready(function () {
 });
 
 function handleMessage(message) {
-  if (message == "stop") {
+  sync(message);
+  if (message.state == "stop") {
     pauseVid();
-  } else if (message == "start") {
+  } else if (message.state == "start") {
     playVid();
-  } else {
-    ///Syncing
   }
 }
 
 function startVideo() {
-  // Get the message from an input field or any other source
-  const message = "start";
-  // Check if the WebSocket connection is open
   if (socket.readyState === WebSocket.OPEN) {
+    // Get the message from an input field or any other source
+    const data = {
+      currentTime: vid.currentTime,
+      state: "start",
+    };
+    const message = JSON.stringify(data);
+    // Check if the WebSocket connection is open
     // Send the message to the server
     socket.send(message);
     playVid();
@@ -95,21 +106,27 @@ function startVideo() {
 }
 
 function stopVideo() {
-  // Get the message from an input field or any other source
-  const message = "stop";
   // Check if the WebSocket connection is open
   if (socket.readyState === WebSocket.OPEN) {
     // Send the message to the server
     pauseVid();
+    // Get the message from an input field or any other source
+    const data = {
+      currentTime: vid.currentTime,
+      state: "stop",
+    };
+    const message = JSON.stringify(data);
     socket.send(message);
   } else {
     console.error("WebSocket connection is not open.");
   }
 }
 
-function jump() {
-  var hova = document.getElementById("jumpIdo").value;
-  vid.currentTime = hova;
+//NOTE: we need this
+function sync(message) {
+  console.log("sync");
+  vid.currentTime = message.currentTime;
+  myTimer();
 }
 
 function keszulj() {
@@ -151,7 +168,7 @@ function pauseVid() {
   vid.pause();
   document.title = "Pause - " + fajlNev + ".mp4";
 }
-var myVar = setInterval(myTimer, 100);
+var myVar = setInterval(myTimer, 1);
 
 function myTimer() {
   //console.log("current time: "+vid.currentTime);
