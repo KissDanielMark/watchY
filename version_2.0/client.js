@@ -1,4 +1,4 @@
-const socket = new WebSocket("ws://localhost:3000"); //"ws://localhost:3000");//ws://13.53.68.179:3000
+let socket; //"ws://localhost:3000");//ws://13.53.68.179:3000
 let vid;
 let fajlNev;
 
@@ -8,45 +8,7 @@ $(document).ready(function () {
   vid = document.getElementById("myVideo");
 
   // Event listener for when the connection is opened
-  socket.addEventListener("open", (event) => {
-    console.log("Connected to WebSocket server");
-    document.getElementById("connectionStatus").innerHTML =
-      "Connection: Connected";
-    // Send a message to the server
-    socket.send("Hello, server!");
-  });
-
-  // Event listener for receiving messages from the server
-  socket.addEventListener("message", (event) => {
-    const receivedData = event.data;
-
-    // Check if the received data is a Blob
-    if (receivedData instanceof Blob) {
-      const reader = new FileReader();
-
-      // Set up the FileReader onload event to handle the read data
-      reader.onload = function () {
-        try {
-          const jsonData = JSON.parse(reader.result);
-          console.log("Received JSON:", jsonData);
-          handleMessage(jsonData);
-        } catch (error) {
-          console.error("Error parsing JSON:", error);
-        }
-      };
-      // Read the contents of the Blob as text
-      reader.readAsText(receivedData);
-    } else {
-      console.error("Received data is not a Blob:", receivedData);
-    }
-  });
-
-  // Event listener for when the connection is closed
-  socket.addEventListener("close", (event) => {
-    console.log("Disconnected from WebSocket server");
-    document.getElementById("connectionStatus").innerHTML =
-      "Connection: Disconnected";
-  });
+  openWebSocket("ws://localhost:3000");
 
   $("#startButton").on("click", function () {
     startVideo();
@@ -83,7 +45,68 @@ $(document).ready(function () {
     vid.currentTime = hova;
     myTimer();
   });
+
+  document
+    .getElementById("connectButton")
+    .addEventListener("click", function () {
+      let hova = document.getElementById("serverAddress").value;
+      openWebSocket("ws://" + hova + ":3000");
+    });
 });
+
+function openWebSocket(serverAddress) {
+  // Close existing socket if it's open
+  if (socket && socket.readyState === WebSocket.OPEN) {
+    socket.close();
+  }
+  // Create a new WebSocket connection
+  socket = new WebSocket(serverAddress);
+
+  socket.addEventListener("open", (event) => {
+    console.log("Connected to WebSocket server");
+    document.getElementById("connectionStatus").innerHTML =
+      "Connection: Connected";
+    const data = {
+      currentTime: vid.currentTime,
+      state: "Hello, server!",
+    };
+    const message = JSON.stringify(data);
+    // Send a message to the server
+    socket.send(message);
+  });
+
+  // Event listener for receiving messages from the server
+  socket.addEventListener("message", (event) => {
+    const receivedData = event.data;
+
+    // Check if the received data is a Blob
+    if (receivedData instanceof Blob) {
+      const reader = new FileReader();
+
+      // Set up the FileReader onload event to handle the read data
+      reader.onload = function () {
+        try {
+          const jsonData = JSON.parse(reader.result);
+          console.log("Received JSON:", jsonData);
+          handleMessage(jsonData);
+        } catch (error) {
+          console.error("Error parsing JSON:", error);
+        }
+      };
+      // Read the contents of the Blob as text
+      reader.readAsText(receivedData);
+    } else {
+      console.error("Received data is not a Blob:", receivedData);
+    }
+  });
+
+  // Event listener for when the connection is closed
+  socket.addEventListener("close", (event) => {
+    console.log("Disconnected from WebSocket server");
+    document.getElementById("connectionStatus").innerHTML =
+      "Connection: Disconnected";
+  });
+}
 
 function handleMessage(message) {
   sync(message);
