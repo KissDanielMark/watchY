@@ -2,6 +2,8 @@ let socket; //"ws://localhost:3000");//ws://13.53.68.179:3000
 let vid;
 let fajlNev;
 
+let allapot = "stop";
+
 $(document).ready(function () {
   console.log("Started.");
   document.title = "watcHy";
@@ -119,11 +121,13 @@ function handleMessage(message) {
 
 function startVideo() {
   if (socket.readyState === WebSocket.OPEN) {
+    allapot = "start";
     // Get the message from an input field or any other source
     const data = {
       currentTime: vid.currentTime,
-      state: "start",
+      state: allapot,
     };
+
     const message = JSON.stringify(data);
     // Check if the WebSocket connection is open
     // Send the message to the server
@@ -139,10 +143,11 @@ function stopVideo() {
   if (socket.readyState === WebSocket.OPEN) {
     // Send the message to the server
     pauseVid();
+    allapot = "stop";
     // Get the message from an input field or any other source
     const data = {
       currentTime: vid.currentTime,
-      state: "stop",
+      state: allapot,
     };
     const message = JSON.stringify(data);
     socket.send(message);
@@ -206,12 +211,13 @@ function myTimer() {
 }
 //TODO: properly implement it
 document.body.onkeyup = function (e) {
-  if (e.keyCode == 83) {
-    startVideo();
-  }
-
-  if (e.keyCode == 80) {
-    stopVideo();
+  if (e.keyCode == 32) {
+    console.log("space");
+    if (allapot == "start") {
+      stopVideo();
+    } else if (allapot == "stop") {
+      startVideo();
+    }
   }
 
   if (e.keyCode == 70) {
