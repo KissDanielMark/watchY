@@ -67,7 +67,7 @@ function openWebSocket(serverAddress) {
   socket.addEventListener("open", (event) => {
     console.log("Connected to WebSocket server");
     document.getElementById("connectionStatus").innerHTML =
-      "Connection: Connected";
+      "Connection: Connected to - " + serverAddress;
     const data = {
       currentTime: vid.currentTime,
       state: "Hello, server!",
