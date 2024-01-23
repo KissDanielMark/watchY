@@ -19,6 +19,7 @@ navigator.mediaDevices
       .then((offer) => pc.setLocalDescription(offer))
       .then(() => {
         // Send the offer to the signaling server
+        console.log("Sending offer:", pc.localDescription);
         socket.send(
           JSON.stringify({ type: "offer", offer: pc.localDescription })
         );

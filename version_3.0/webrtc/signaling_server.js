@@ -12,6 +12,7 @@ server.on("connection", (socket) => {
   // Listen for messages from the client
   socket.on("message", (message) => {
     // Broadcast the message to all other clients
+    console.log("Received message:", message);
     clients.forEach((client) => {
       if (client !== socket && client.readyState === WebSocket.OPEN) {
         console.log("Broadcasting message:", message);
