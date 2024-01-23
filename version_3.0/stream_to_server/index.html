@@ -3,45 +3,53 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Continuous Video Streaming</title>
+    <title>Stream MP4 to Server</title>
   </head>
   <body>
-    <video id="liveVideo" width="640" height="480" autoplay></video>
+    <input type="file" id="fileInput" accept="video/mp4" />
+    <video id="videoPlayer" controls></video>
 
     <script>
-      const videoElement = document.getElementById("liveVideo");
-      const mediaConfig = { video: true };
+      const socket = new WebSocket("ws://localhost:3000");
 
-      navigator.mediaDevices
-        .getUserMedia(mediaConfig)
-        .then((stream) => {
-          videoElement.srcObject = stream;
+      document
+        .getElementById("fileInput")
+        .addEventListener("change", handleFileSelect);
 
-          const mediaRecorder = new MediaRecorder(stream);
-          const socket = new WebSocket("ws://127.0.0.1:3000");
+      function handleFileSelect(event) {
+        const file = event.target.files[0];
+        const videoPlayer = document.getElementById("videoPlayer");
 
-          mediaRecorder.ondataavailable = (event) => {
-            if (event.data.size > 0 && socket.readyState === WebSocket.OPEN) {
-              socket.send(event.data);
-            }
+        if (file && file.type === "video/mp4") {
+          const fileReader = new FileReader();
+
+          fileReader.onload = function () {
+            const arrayBuffer = this.result;
+            const uint8Array = new Uint8Array(arrayBuffer);
+
+            sendChunks(uint8Array);
           };
 
-          mediaRecorder.onstop = () => {
-            stream.getTracks().forEach((track) => track.stop());
-            mediaRecorder.start(); // Start a new recording
-          };
+          fileReader.readAsArrayBuffer(file);
+          videoPlayer.src = URL.createObjectURL(file);
+        } else {
+          console.error(
+            "Invalid file type. Please select a video in MP4 format."
+          );
+        }
+      }
 
-          mediaRecorder.start();
+      function sendChunks(uint8Array) {
+        const chunkSize = 1024 * 1024; // 1 MB chunks (adjust as needed)
 
-          // Stop recording and close the WebSocket when the page is closed or navigated away
-          window.addEventListener("beforeunload", () => {
-            mediaRecorder.stop();
-            socket.close();
-          });
-        })
-        .catch((error) => {
-          console.error("Error accessing camera:", error);
-        });
+        for (let i = 0; i < uint8Array.length; i += chunkSize) {
+          const chunk = uint8Array.subarray(i, i + chunkSize);
+          socket.send(chunk);
+          console.log("Sent chunk:", i + chunk.length);
+        }
+
+        console.log("File upload complete");
+      }
     </script>
   </body>
 </html>
