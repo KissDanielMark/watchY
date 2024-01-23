@@ -33,6 +33,7 @@ io.on("connection", (socket) => {
 
       streamSocket.on("stream", (data) => {
         // Forward the file chunks to the receiver client
+        //console.log(data);
         socket.emit("stream", data);
       });
     });
