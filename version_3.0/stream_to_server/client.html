@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stream MP4 to Server</title>
+  </head>
+  <body>
+    <video id="videoPlayer" controls></video>
+
+    <script>
+      const socket = new WebSocket("ws://localhost:3000");
+
+      // Handle incoming messages from the server
+      socket.addEventListener("message", (event) => {
+        // Assume the event data is a chunk of video data
+        // You can save the chunks, process them, or display them
+        console.log("Received chunk:", event.data);
+
+        // Here, we append the received chunk to a Blob
+        appendToVideoPlayer(event.data);
+      });
+
+      // Handle WebSocket open event
+      socket.addEventListener("open", () => {
+        console.log("WebSocket connection opened");
+
+        // Send a request to the server to start sending video chunks
+        socket.send("start");
+      });
+
+      // Handle WebSocket close event
+      socket.addEventListener("close", () => {
+        console.log("WebSocket connection closed");
+      });
+
+      // Function to append video data to the video player
+      function appendToVideoPlayer(chunk) {
+        const videoPlayer = document.getElementById("videoPlayer");
+        const blob = new Blob([chunk], { type: "video/mp4" });
+        const objectURL = URL.createObjectURL(blob);
+
+        // Set the source of the video player to the new object URL
+        videoPlayer.src = objectURL;
+      }
+    </script>
+  </body>
+</html>
