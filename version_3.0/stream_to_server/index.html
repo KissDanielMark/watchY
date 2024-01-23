@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Continuous Video Streaming</title>
+  </head>
+  <body>
+    <video id="liveVideo" width="640" height="480" autoplay></video>
+
+    <script>
+      const videoElement = document.getElementById("liveVideo");
+      const mediaConfig = { video: true };
+
+      navigator.mediaDevices
+        .getUserMedia(mediaConfig)
+        .then((stream) => {
+          videoElement.srcObject = stream;
+
+          const mediaRecorder = new MediaRecorder(stream);
+          const socket = new WebSocket("ws://127.0.0.1:3000");
+
+          mediaRecorder.ondataavailable = (event) => {
+            if (event.data.size > 0 && socket.readyState === WebSocket.OPEN) {
+              socket.send(event.data);
+            }
+          };
+
+          mediaRecorder.onstop = () => {
+            stream.getTracks().forEach((track) => track.stop());
+            mediaRecorder.start(); // Start a new recording
+          };
+
+          mediaRecorder.start();
+
+          // Stop recording and close the WebSocket when the page is closed or navigated away
+          window.addEventListener("beforeunload", () => {
+            mediaRecorder.stop();
+            socket.close();
+          });
+        })
+        .catch((error) => {
+          console.error("Error accessing camera:", error);
+        });
+    </script>
+  </body>
+</html>
