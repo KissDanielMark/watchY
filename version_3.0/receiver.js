@@ -42,6 +42,17 @@ $(document).ready(function () {
       console.log(data);
       const uint8Array = new Uint8Array(data); // Convert data to Uint8Array
       //console.log("Before appending:", mediaSourceBuffer.updating);
+      // Convert Uint8Array to Blob
+      const blob = new Blob([uint8Array], { type: "image/jpeg" }); // Adjust the type accordingly
+
+      // Create a data URL from the Blob
+      const imageUrl = URL.createObjectURL(blob);
+
+      // Display the image
+      const imgElement = document.createElement("img");
+      imgElement.src = imageUrl;
+      document.body.appendChild(imgElement);
+
       mediaSourceBuffer.appendBuffer(uint8Array);
       //console.log("After appending:", mediaSourceBuffer.updating);
 

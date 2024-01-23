@@ -19,7 +19,7 @@ $(document).ready(function () {
   }
 
   function sendFileChunks(blob) {
-    const CHUNK_SIZE = 524288; // 0.5 MB chunks (half a megabyte)
+    const CHUNK_SIZE = 16384; // 16KB chunks
     let offset = 0;
 
     function readChunk() {
@@ -28,7 +28,7 @@ $(document).ready(function () {
 
       if (chunk.size > 0) {
         socket.emit("stream", chunk);
-        setTimeout(readChunk, 100); // Adjust the delay as needed
+        setTimeout(readChunk, 1000); // Adjust the delay as needed
       } else {
         socket.emit("stream", "end");
       }
