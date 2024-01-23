@@ -3,45 +3,75 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Stream MP4 to Server</title>
+    <title>Stream MP4 from Server</title>
   </head>
   <body>
     <video id="videoPlayer" controls></video>
 
     <script>
       const socket = new WebSocket("ws://localhost:3000");
+      const videoPlayer = document.getElementById("videoPlayer");
+      let mediaSource;
+      let sourceBuffer;
 
-      // Handle incoming messages from the server
       socket.addEventListener("message", (event) => {
-        // Assume the event data is a chunk of video data
-        // You can save the chunks, process them, or display them
-        console.log("Received chunk:", event.data);
+        if (event.data instanceof Blob) {
+          // Assume the event data is a chunk of video data (Blob)
+          appendToBuffer(event.data);
+        } else if (typeof event.data === "string" && event.data === "end") {
+          // End of video stream
+          if (sourceBuffer) {
+            sourceBuffer.addEventListener("updateend", () => {
+              // Notify the end of the video stream
+              videoPlayer.play();
+            });
+            sourceBuffer.addEventListener("error", (error) => {
+              console.error("Error in sourceBuffer:", error);
+            });
 
-        // Here, we append the received chunk to a Blob
-        appendToVideoPlayer(event.data);
+            // Explicitly end the stream
+            mediaSource.endOfStream();
+          }
+        } else {
+          console.error("Invalid message format");
+        }
       });
 
-      // Handle WebSocket open event
       socket.addEventListener("open", () => {
         console.log("WebSocket connection opened");
-
         // Send a request to the server to start sending video chunks
         socket.send("start");
       });
 
-      // Handle WebSocket close event
       socket.addEventListener("close", () => {
         console.log("WebSocket connection closed");
       });
 
-      // Function to append video data to the video player
-      function appendToVideoPlayer(chunk) {
-        const videoPlayer = document.getElementById("videoPlayer");
-        const blob = new Blob([chunk], { type: "video/mp4" });
-        const objectURL = URL.createObjectURL(blob);
+      function setupMediaSource() {
+        mediaSource = new MediaSource();
+        videoPlayer.src = URL.createObjectURL(mediaSource);
 
-        // Set the source of the video player to the new object URL
-        videoPlayer.src = objectURL;
+        mediaSource.addEventListener("sourceopen", () => {
+          sourceBuffer = mediaSource.addSourceBuffer(
+            'video/mp4; codecs="avc1.64001E,mp4a.40.2"'
+          );
+        });
+      }
+
+      function appendToBuffer(chunk) {
+        if (!mediaSource || mediaSource.readyState !== "open") {
+          setupMediaSource();
+        }
+
+        if (sourceBuffer && sourceBuffer.updating === false) {
+          try {
+            sourceBuffer.appendBuffer(chunk);
+          } catch (error) {
+            console.error("Error appending to sourceBuffer:", error);
+          }
+        } else {
+          console.warn("Buffer updating or not ready.");
+        }
       }
     </script>
   </body>
