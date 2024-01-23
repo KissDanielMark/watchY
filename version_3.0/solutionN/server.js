@@ -33,7 +33,7 @@ app.get("/video", (req, res) => {
   res.writeHead(206, head);
   file.pipe(res);
 });
-
+//semmi
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
