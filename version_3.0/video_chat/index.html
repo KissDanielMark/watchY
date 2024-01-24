@@ -9,9 +9,6 @@
     <h2>Client 1</h2>
     <video id="video1" width="320" height="240" controls></video>
 
-    <h2>Client 2</h2>
-    <video id="video2" width="320" height="240" controls></video>
-
     <script>
       const ws = new WebSocket("ws://localhost:3000");
 
@@ -21,8 +18,7 @@
           const video1 = document.getElementById("video1");
           video1.srcObject = stream;
 
-          const video2 = document.getElementById("video2");
-          video2.srcObject = new MediaStream(); // Empty stream for receiving
+          // Empty stream for receiving
 
           setInterval(() => {
             const canvas = document.createElement("canvas");
@@ -32,7 +28,47 @@
             context.drawImage(video1, 0, 0, canvas.width, canvas.height);
             const imageData = canvas.toDataURL("image/jpeg");
             ws.send(imageData);
+            console.log("Sent data - " + imageData);
+            const imgElement = document.createElement("img");
+            imgElement.src = imageData;
+
+            // Append the <img> element to the body
+            document.body.appendChild(imgElement);
           }, 1000);
+
+          // Function to handle the received blob and create a live stream
+          function handleBlob(blob) {
+            const videoElement = document.getElementById("video2");
+
+            // Check if the MediaSource API is supported
+            if (window.MediaSource) {
+              const mediaSource = new MediaSource();
+
+              // Set up event listeners for the MediaSource
+              mediaSource.addEventListener("sourceopen", function () {
+                const sourceBuffer = mediaSource.addSourceBuffer(
+                  'video/mp4; codecs="avc1.42E01E, mp4a.40.2"'
+                );
+
+                // Append the received blob to the source buffer
+                sourceBuffer.addEventListener("updateend", function () {
+                  if (
+                    !mediaSource.readyState ||
+                    mediaSource.readyState === "open"
+                  ) {
+                    mediaSource.endOfStream();
+                  }
+                });
+
+                sourceBuffer.appendBuffer(blob);
+              });
+
+              // Set the video source to the MediaSource
+              videoElement.src = URL.createObjectURL(mediaSource);
+            } else {
+              console.error("MediaSource API is not supported.");
+            }
+          }
 
           ws.onmessage = (event) => {
             //console.log("Message received from server:", event.data);
@@ -40,6 +76,11 @@
 
             // Assuming the received data is a valid URL for the Blob
             const blobURL = videoData;
+            // Example: Simulate receiving a blob (you should replace this with your actual blob)
+            const exampleBlob = new Blob([videoData], {
+              type: "video/mp4",
+            });
+            handleBlob(exampleBlob);
 
             // Creating a Blob URL for the received data
             const receivedBlobURL = URL.createObjectURL(new Blob([blobURL]));
@@ -48,7 +89,7 @@
             const receivedVideo = document.createElement("video2");
             receivedVideo.src = receivedBlobURL;
             receivedVideo.autoplay = true;
-            video2.play();
+            //video2.play();
 
             receivedVideo.addEventListener("loadedmetadata", () => {
               console.log(
