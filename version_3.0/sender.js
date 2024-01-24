@@ -1,6 +1,14 @@
 $(document).ready(function () {
-  const socket = io("http://localhost:3000/stream");
+  const socket = new WebSocket("ws://localhost:3000/stream");
   const fileInput = document.getElementById("fileInput");
+
+  socket.addEventListener("open", () => {
+    console.log("WebSocket connection opened");
+  });
+
+  socket.addEventListener("error", (error) => {
+    console.error("WebSocket error:", error);
+  });
 
   fileInput.addEventListener("change", handleFileSelect);
 
@@ -27,13 +35,17 @@ $(document).ready(function () {
       offset += CHUNK_SIZE;
 
       if (chunk.size > 0) {
-        socket.emit("stream", chunk);
+        socket.send(chunk);
         setTimeout(readChunk, 1000); // Adjust the delay as needed
       } else {
-        socket.emit("stream", "end");
+        socket.send("end");
       }
     }
 
     readChunk();
   }
+
+  socket.addEventListener("close", (event) => {
+    console.log("WebSocket connection closed:", event);
+  });
 });
