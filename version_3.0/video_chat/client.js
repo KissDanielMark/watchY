@@ -1,84 +1,52 @@
-var socket = new WebSocket(`ws://localhost:3000`); //websocket for recieving chunks
-var livestream = document.getElementById("video"); //live stream video tag
+const ws = new WebSocket("ws://localhost:3000");
+const video = document.getElementById("video");
+video.srcObject = new MediaStream(); // Empty stream for receiving
 
-var mediaSource = new MediaSource(); //global media source object
-var sourceBuffer; //global var for the source buffer
-var streamSrc = URL.createObjectURL(mediaSource); //object url for the stream
-livestream.src = streamSrc; //set the source of the live stream
+// Function to handle the received blob and create a live stream
+function handleBlob(blob) {
+  const videoElement = document.getElementById("video");
 
-var timeSet = false;
+  // Check if the MediaSource API is supported
+  if (window.MediaSource) {
+    const mediaSource = new MediaSource();
 
-//listen for the readyState change to "open" for the mediasource
-mediaSource.addEventListener("sourceopen", sourceOpened);
+    // Set up event listeners for the MediaSource
+    mediaSource.addEventListener("sourceopen", function () {
+      const sourceBuffer = mediaSource.addSourceBuffer(
+        'video/mp4; codecs="avc1.42E01E, mp4a.40.2"'
+      );
 
-//whenever the mediasource is opened, then add a source buffer
-function sourceOpened() {
-  /*
-	IMPORTANT: Setting the Codecs correctly is key to playing the actual video. I set the codec to "opus" instead of "vorbis" and this caused
-			   problems in the decoding.
-	*/
-  sourceBuffer = mediaSource.addSourceBuffer(
-    'video/mp4; codecs="avc1.42E01E, mp4a.40.2"'
-  );
-}
+      // Append the received blob to the source buffer
+      sourceBuffer.addEventListener("updateend", function () {
+        if (!mediaSource.readyState || mediaSource.readyState === "open") {
+          mediaSource.endOfStream();
+        }
+      });
 
-//function to update the seekable time of the video
-function setTime() {
-  //set the time to the latest seekable time
-  livestream.currentTime = livestream.seekable.end(0);
+      sourceBuffer.appendBuffer(blob);
+    });
 
-  //if the video is playing, then set a timeout for 10 seconds to update the stream,
-  //if the video is paused, then set a timeout for one second to constantly update the stream
-  if (livestream.currentTime > 0 && !livestream.paused && !livestream.ended) {
-    setTimeout(setTime, 10000);
-  } else if (livestream.paused) {
-    setTimeout(setTime, 1000);
+    // Set the video source to the MediaSource
+    videoElement.src = URL.createObjectURL(mediaSource);
+  } else {
+    console.error("MediaSource API is not supported.");
   }
 }
 
-//message that lets us know that the socket connected
-socket.onopen = (e) => {
-  console.log("Connection Established");
-};
+ws.onmessage = (event) => {
+  console.log("Message received from server:", event.data);
 
-//append the bytes of video data
-socket.onmessage = async (event) => {
-  //message to the developer
-  console.log("Message from server:");
-  console.log(typeof event.data);
-  console.log(event.data);
+  const blob = new Blob([event.data], { type: "video/mp4" });
+  const blobURL = URL.createObjectURL(blob);
 
-  //set off the setTime function to update the livestream's seekable time
-  if (timeSet == false && sourceBuffer.buffered.length != 0) {
-    setTime();
-    timeSet = true;
-  }
+  video.src = blobURL;
 
-  //if the data is an object (video data), then get the array buffer
-  if (typeof event.data == "object") {
-    //get the data from the blob of video data
-    var data = await event.data.arrayBuffer();
-
-    //add the video data after performing some checks
-    if (
-      typeof sourceBuffer != "undefined" &&
-      mediaSource.readyState == "open" &&
-      typeof data != "undefined"
-    ) {
-      //if this is video data, then add it to the media source
-      console.log("APPENDING BUFFER...");
-      sourceBuffer.appendBuffer(data);
-    }
-
-    //increase the amount of time that the user can seek in the video as the video is recorded
-    mediaSource.setLiveSeekableRange(
-      livestream.seekable.start(0),
-      livestream.seekable.end(0)
-    );
-  } else if (typeof event.data == "string") {
-    //if the data sent to us is a string and not video data, then end the video stream/source
-    if (event.data == "ended") {
-      mediaSource.endOfStream();
-    }
-  }
+  video.addEventListener("loadedmetadata", () => {
+    console.log("Loaded metadata event triggered");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    video.play();
+    // Draw the video frame onto the canvas
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  });
 };
