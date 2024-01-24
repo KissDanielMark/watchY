@@ -36,40 +36,6 @@
             document.body.appendChild(imgElement);
           }, 1000);
 
-          // Function to handle the received blob and create a live stream
-          function handleBlob(blob) {
-            const videoElement = document.getElementById("video2");
-
-            // Check if the MediaSource API is supported
-            if (window.MediaSource) {
-              const mediaSource = new MediaSource();
-
-              // Set up event listeners for the MediaSource
-              mediaSource.addEventListener("sourceopen", function () {
-                const sourceBuffer = mediaSource.addSourceBuffer(
-                  'video/mp4; codecs="avc1.42E01E, mp4a.40.2"'
-                );
-
-                // Append the received blob to the source buffer
-                sourceBuffer.addEventListener("updateend", function () {
-                  if (
-                    !mediaSource.readyState ||
-                    mediaSource.readyState === "open"
-                  ) {
-                    mediaSource.endOfStream();
-                  }
-                });
-
-                sourceBuffer.appendBuffer(blob);
-              });
-
-              // Set the video source to the MediaSource
-              videoElement.src = URL.createObjectURL(mediaSource);
-            } else {
-              console.error("MediaSource API is not supported.");
-            }
-          }
-
           ws.onmessage = (event) => {
             //console.log("Message received from server:", event.data);
             const videoData = event.data;
