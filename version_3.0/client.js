@@ -3,6 +3,9 @@ let vid;
 let fajlNev;
 let progressBar;
 
+const cotrolPort = 3000;
+const videoPort = 3001;
+
 let allapot = "stop";
 
 $(document).ready(function () {
@@ -60,23 +63,26 @@ function openWebSocket(serverAddress) {
     socket.close();
   }
   // Create a new WebSocket connection
-  socket = new WebSocket("ws://" + serverAddress + ":3000");
+  socket = new WebSocket("ws://" + serverAddress + ":" + cotrolPort);
 
   socket.addEventListener("open", (event) => {
     console.log("Connected to WebSocket server");
 
-    videoSRC.src = "http://" + serverAddress + ":731/movie";
+    videoSRC.src = "http://" + serverAddress + ":" + videoPort + "/movie";
     videoSRC.type = "video/mp4";
     vid.load();
     document.getElementById("connectionStatus").innerHTML =
       "Connection: Connected to - " +
       "ws://" +
       serverAddress +
-      ":3000" +
+      ":" +
+      cotrolPort +
       "<br>Streaming from - " +
       "http://" +
       serverAddress +
-      ":731/";
+      ":" +
+      videoPort +
+      "/";
     const data = {
       currentTime: vid.currentTime,
       state: "Hello, server!",
