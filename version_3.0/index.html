@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title></title>
+
+    <meta charset="utf-8" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Concert+One&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link href="watchy7.png" rel="icon" />
+    <link href="watcHy.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <h1 align="center">watcHy</h1>
+    <img
+      src="watchy7.png"
+      alt="watcHy logo"
+      class="center"
+      height="170px"
+      width="170px"
+    />
+
+    &nbsp;&nbsp;
+    <div id="outer">
+      <div class="inner">
+        <p>Server:</p>
+      </div>
+
+      <div class="inner"><input id="serverAddress" type="text" value="" /></div>
+
+      <div class="inner"><button id="connectButton">Connect!</button></div>
+
+      <p id="connectionStatus">Connection:</p>
+
+      <p id="ido">Time:</p>
+
+      <div class="inner">
+        <button hidden="" id="full" type="button">⎋</button>
+      </div>
+
+      <div class="inner">
+        <button hidden="" id="startButton" type="button">▶</button>
+      </div>
+
+      <div class="inner">
+        <button hidden="" id="stopButton" type="button">❙❙</button>
+      </div>
+
+      <div class="inner">
+        <p>JUMP TO:</p>
+      </div>
+
+      <div class="inner"><input id="jumpIdo" type="text" value="" /></div>
+
+      <div class="inner"><button id="jumpGomb">JUMP!</button></div>
+    </div>
+    <video height="800" hidden="" id="myVideo" width="100%">
+      <source src="" type="video/*" />
+    </video>
+
+    <script src="jquery-3.6.0.min.js"></script>
+    <script src="client.js"></script>
+  </body>
+</html>
