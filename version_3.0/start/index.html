@@ -2,6 +2,7 @@
 <html lang="en">
   <head> </head>
   <body>
+    <input id="fajl" type="file" />
     <button id="btn-open-room">Open Room</button>
     <button id="btn-join-room">Join Room</button>
     <hr />
@@ -27,6 +28,7 @@
       };
 
       connection.onstream = function (event) {
+        console.log("onstream");
         document.body.appendChild(event.mediaElement);
       };
 
