@@ -46,7 +46,7 @@ server.listen(PORT, () => {
   console.log(`Server is listening on port ${PORT}`);
 });
 
-app.get("/video", (req, res) => {
+app.get("/movie", (req, res) => {
   const range = req.headers.range;
 
   if (!range) {

@@ -8,9 +8,10 @@ $(document).ready(function () {
   console.log("Started.");
   document.title = "watcHy";
   vid = document.getElementById("myVideo");
+  videoSRC = document.getElementById("videoSRC");
 
   // Event listener for when the connection is opened
-  openWebSocket("ws://localhost:3000");
+  openWebSocket("localhost");
 
   $("#startButton").on("click", function () {
     startVideo();
@@ -36,8 +37,7 @@ $(document).ready(function () {
     .getElementById("connectButton")
     .addEventListener("click", function () {
       let hova = document.getElementById("serverAddress").value;
-      openWebSocket("ws://" + hova + ":3000");
-      vid.src = "http://" + hova + ":3000/movie";
+      openWebSocket(hova);
     });
 });
 
@@ -47,12 +47,23 @@ function openWebSocket(serverAddress) {
     socket.close();
   }
   // Create a new WebSocket connection
-  socket = new WebSocket(serverAddress);
+  socket = new WebSocket("ws://" + serverAddress + ":3000");
 
   socket.addEventListener("open", (event) => {
     console.log("Connected to WebSocket server");
+
+    videoSRC.src = "http://" + serverAddress + ":731/movie";
+    videoSRC.type = "video/mp4";
+    vid.load();
     document.getElementById("connectionStatus").innerHTML =
-      "Connection: Connected to - " + serverAddress;
+      "Connection: Connected to - " +
+      "ws://" +
+      serverAddress +
+      ":3000" +
+      "<br>Streaming from - " +
+      "http://" +
+      serverAddress +
+      ":731/";
     const data = {
       currentTime: vid.currentTime,
       state: "Hello, server!",
