@@ -5,10 +5,11 @@ const path = require("path");
 const app = express();
 const port = 3000;
 
-const videoPath = "video.mp4";
+const videoPath = "movie.mp4";
 const videoSize = fs.statSync(videoPath).size;
 
 app.get("/video", (req, res) => {
+  console.log("video");
   const range = req.headers.range;
 
   if (!range) {
