@@ -1,6 +1,7 @@
 let socket; //"ws://localhost:3000");//ws://13.53.68.179:3000
 let vid;
 let fajlNev;
+let progressBar;
 
 let allapot = "stop";
 
@@ -9,9 +10,21 @@ $(document).ready(function () {
   document.title = "watcHy";
   vid = document.getElementById("myVideo");
   videoSRC = document.getElementById("videoSRC");
+  progressBar = document.getElementById("progressBar");
 
   // Event listener for when the connection is opened
   openWebSocket("localhost");
+
+  vid.addEventListener("timeupdate", function () {
+    progressBar.value = (vid.currentTime / vid.duration) * 100;
+  });
+
+  progressBar.addEventListener("click", (e) => {
+    const pos =
+      (e.pageX - progressBar.offsetLeft - progressBar.offsetParent.offsetLeft) /
+      progressBar.offsetWidth;
+    vid.currentTime = pos * vid.duration;
+  });
 
   $("#startButton").on("click", function () {
     startVideo();
