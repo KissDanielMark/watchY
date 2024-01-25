@@ -10,7 +10,7 @@ let allapot = "stop";
 
 $(document).ready(function () {
   console.log("Started.");
-  document.title = "watcHy";
+  document.title = "watcHy_3.0";
   vid = document.getElementById("myVideo");
   videoSRC = document.getElementById("videoSRC");
   progressBar = document.getElementById("progressBar");
@@ -27,6 +27,7 @@ $(document).ready(function () {
       (e.pageX - progressBar.offsetLeft - progressBar.offsetParent.offsetLeft) /
       progressBar.offsetWidth;
     vid.currentTime = pos * vid.duration;
+    startVideo();
   });
 
   $("#startButton").on("click", function () {
@@ -70,6 +71,7 @@ function openWebSocket(serverAddress) {
 
     videoSRC.src = "http://" + serverAddress + ":" + videoPort + "/movie";
     videoSRC.type = "video/mp4";
+
     vid.load();
     document.getElementById("connectionStatus").innerHTML =
       "Connection: Connected to - " +
@@ -210,12 +212,12 @@ function openFullscreen() {
 
 function playVid() {
   vid.play();
-  document.title = "Play -  " + fajlNev + ".mp4";
+  document.title = "watcHy_3.0 - Playing";
 }
 
 function pauseVid() {
   vid.pause();
-  document.title = "Pause - " + fajlNev + ".mp4";
+  document.title = "watcHy_3.0 - Pause";
 }
 var myVar = setInterval(myTimer, 1);
 

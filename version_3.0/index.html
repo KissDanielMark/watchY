@@ -21,8 +21,8 @@
       src="watchy7.png"
       alt="watcHy logo"
       class="center"
-      height="170px"
-      width="170px"
+      height="130px"
+      width="130px"
     />
 
     &nbsp;&nbsp;
@@ -39,36 +39,38 @@
 
       <p id="ido">Time:</p>
 
-      <div class="inner">
-        <button hidden="" id="full" type="button">⎋</button>
+      <div>
+        <div class="inner">
+          <button hidden="" id="full" type="button">⎋</button>
+        </div>
+
+        <div class="inner">
+          <button hidden="" id="startButton" type="button">▶</button>
+        </div>
+
+        <div class="inner">
+          <button hidden="" id="stopButton" type="button">❙❙</button>
+        </div>
       </div>
 
-      <div class="inner">
-        <button hidden="" id="startButton" type="button">▶</button>
+      <div>
+        <div class="inner">
+          <p>JUMP TO:</p>
+        </div>
+
+        <div class="inner"><input id="jumpIdo" type="text" value="" /></div>
+
+        <div class="inner"><button id="jumpGomb">JUMP!</button></div>
       </div>
-
-      <div class="inner">
-        <button hidden="" id="stopButton" type="button">❙❙</button>
-      </div>
-
-      <div class="inner">
-        <p>JUMP TO:</p>
-      </div>
-
-      <div class="inner"><input id="jumpIdo" type="text" value="" /></div>
-
-      <div class="inner"><button id="jumpGomb">JUMP!</button></div>
     </div>
-    <video height="400px" id="myVideo" width="400px">
-      <source id="videoSRC" src="" type="video/mp4" />
-    </video>
+    <div id="videoBlock">
+      <video id="myVideo">
+        <source id="videoSRC" src="" type="video/mp4" />
+      </video>
 
-    <progress
-      value="75"
-      max="100"
-      id="progressBar"
-      style="width: 400px"
-    ></progress>
+      <progress value="75" max="100" id="progressBar"></progress>
+    </div>
+
     <script src="jquery-3.6.0.min.js"></script>
     <script src="client.js"></script>
   </body>
