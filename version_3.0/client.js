@@ -1,4 +1,4 @@
-let socket; //"ws://localhost:3000");//ws://13.53.68.179:3000
+let socket;
 let vid;
 let fajlNev;
 let progressBar;
