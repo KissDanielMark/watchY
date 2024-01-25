@@ -1,0 +1,76 @@
+  body {
+    background-color: #393333;
+  }
+
+  button {
+    color: rgb(204, 148, 62);
+    background-color: rgb(249, 230, 173);
+    font-size: large;
+    font-family: 'Concert One', cursive;
+  }
+
+  p {
+    color: red;
+    font-family: 'Montserrat', sans-serif;
+  }
+
+  h1 {
+    font-family: 'Concert One', cursive;
+    color: rgb(249, 230, 173);
+    ;
+    font-size: 50px;
+    position: relative;
+
+  }
+
+  h2 {
+    font-family: 'Montserrat', sans-serif;
+    color: rgb(249, 230, 173);
+    ;
+    font-size: 55px;
+    position: relative;
+  }
+
+  #outer {
+    width: 100%;
+    text-align: center;
+  }
+
+  #outer2 {
+    width: 100%;
+    text-align: center;
+  }
+
+  .inner {
+    display: inline-block;
+  }
+
+  #fajl {
+    font-family: 'Montserrat', sans-serif;
+    color: rgb(249, 230, 173);
+    ;
+  }
+
+  .center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  #videoBlock {
+    margin-left: auto;
+    margin-right: auto;
+    width: 500px;
+    height: 300px;
+    margin-bottom: 30px;
+  }
+
+  #myVideo {
+    width: 100%;
+    height: 100%;
+  }
+
+  #progressBar {
+    width: 100%;
+    height: 20px;
+  }
