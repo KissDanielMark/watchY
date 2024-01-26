@@ -13,14 +13,14 @@ wss.on("connection", (ws) => {
   console.log("Client connected");
 
   ws.on("message", (message) => {
-    console.log(`Received: ${message}`);
+    console.log(`Received data: ${message.length} bytes`);
 
-    // If the message is a file path, start streaming it
-    if (message.startsWith("file:")) {
-      const filePath = message.slice(5);
-      const ffmpegCommand = `ffmpeg -i ${filePath} -c:v libx264 -preset ultrafast -tune zerolatency -c:a aac -ar 44100 -f flv -strict -2 rtmp://localhost:1935/live/stream`;
-      exec(ffmpegCommand);
-    }
+    // Broadcast the received chunk to all other clients
+    wss.clients.forEach((client) => {
+      if (client !== ws && client.readyState === WebSocket.OPEN) {
+        client.send(message);
+      }
+    });
   });
 
   ws.on("close", () => {

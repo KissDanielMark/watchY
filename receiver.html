@@ -6,9 +6,43 @@
     <title>Video Viewing Client</title>
   </head>
   <body>
-    <video controls>
-      <source src="rtmp://localhost:1935/live/stream" type="rtmp/flv" />
-      Your browser does not support the video tag.
-    </video>
+    <video id="videoPlayer" controls></video>
+
+    <script>
+      const videoPlayer = document.getElementById("videoPlayer");
+      const ws = new WebSocket("ws://localhost:3000");
+      const mediaSource = new MediaSource();
+
+      // Set up event listeners for MediaSource
+      mediaSource.addEventListener("sourceopen", handleSourceOpen);
+      mediaSource.addEventListener("sourceended", handleSourceEnded);
+      mediaSource.addEventListener("sourceclosed", handleSourceClosed);
+
+      // Attach MediaSource to video element
+      videoPlayer.src = URL.createObjectURL(mediaSource);
+
+      function handleSourceOpen() {
+        console.log("MediaSource opened");
+        const sourceBuffer = mediaSource.addSourceBuffer(
+          'video/mp4; codecs="avc1.42E01E, mp4a.40.2"'
+        );
+        // Start appending data to the SourceBuffer here
+        ws.onmessage = (event) => {
+          sourceBuffer.appendBuffer(new Uint8Array(event.data));
+        };
+      }
+
+      function handleSourceEnded() {
+        console.log("MediaSource ended");
+      }
+
+      function handleSourceClosed() {
+        console.log("MediaSource closed");
+      }
+
+      ws.onclose = () => {
+        console.log("Connection closed");
+      };
+    </script>
   </body>
 </html>

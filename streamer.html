@@ -11,15 +11,30 @@
 
     <script>
       const ws = new WebSocket("ws://localhost:3000");
+      const CHUNK_SIZE = 16384; // 16KB
 
-      function startStreaming() {
+      async function startStreaming() {
         const fileInput = document.getElementById("fileInput");
         const file = fileInput.files[0];
-        console.log(file);
+
         if (file) {
-          // Send the file path to the server
-          console.log(file.path);
-          ws.send(`file:${file.path}`);
+          const reader = new FileReader();
+
+          reader.onload = async (event) => {
+            const arrayBuffer = event.target.result;
+            let offset = 0;
+
+            while (offset < arrayBuffer.byteLength) {
+              const chunk = arrayBuffer.slice(offset, offset + CHUNK_SIZE);
+              ws.send(chunk);
+              offset += CHUNK_SIZE;
+
+              // Add a delay to simulate real-time streaming
+              await new Promise((resolve) => setTimeout(resolve, 100));
+            }
+          };
+
+          reader.readAsArrayBuffer(file);
         } else {
           alert("Please select a file");
         }
