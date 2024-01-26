@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Video Streaming Client</title>
+  </head>
+  <body>
+    <input type="file" id="fileInput" />
+    <button onclick="startStreaming()">Start Streaming</button>
+
+    <script>
+      const ws = new WebSocket("ws://localhost:3000");
+
+      function startStreaming() {
+        const fileInput = document.getElementById("fileInput");
+        const file = fileInput.files[0];
+        console.log(file);
+        if (file) {
+          // Send the file path to the server
+          console.log(file.path);
+          ws.send(`file:${file.path}`);
+        } else {
+          alert("Please select a file");
+        }
+      }
+    </script>
+  </body>
+</html>
