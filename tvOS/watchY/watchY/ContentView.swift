@@ -20,14 +20,14 @@ struct ContentView: View {
                     Text("Video")
                     }
                 }
-            Audio()
+            /*Audio()
                 .tag(2)
                 .tabItem {
                     VStack {
                         Image(systemName: "headphones")
                         Text("Audio")
                     }
-                }
+                }*/
             SettingsView()
                 .tag(3)
                 .tabItem {
