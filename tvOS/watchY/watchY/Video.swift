@@ -15,6 +15,7 @@ struct Video: View {
     @State var show = false
     var body: some View {
         let play = AVPlayer(url: (vidURL ?? URL(string: "/"))!)
+        let ws = Websocket()
         VStack {
             Spacer()
             HStack {
@@ -63,5 +64,52 @@ struct AVPlayerVieww: UIViewControllerRepresentable {
 
     func makeUIViewController(context: Context) -> AVPlayerViewController {
         return AVPlayerViewController()
+    }
+}
+
+class Websocket: ObservableObject {
+    @Published var messages = [String]()
+    
+    private var webSocketTask: URLSessionWebSocketTask?
+    
+    init() {
+        self.connect()
+    }
+    
+    private func connect() {
+        print("Connct to ws")
+        guard let url = URL(string: "ws://localhost:3000/") else { return }
+        let request = URLRequest(url: url)
+        webSocketTask = URLSession.shared.webSocketTask(with: request)
+        webSocketTask?.resume()
+        receiveMessage()
+    }
+    
+    private func receiveMessage() {
+        webSocketTask?.receive { result in
+            switch result {
+            case .failure(let error):
+                print(error.localizedDescription)
+            case .success(let message):
+                switch message {
+                case .string(let text):
+                    self.messages.append(text)
+                case .data(let data):
+                    // Handle binary data
+                    break
+                @unknown default:
+                    break
+                }
+            }
+        }
+    }
+    
+    func sendMessage(_ message: String) {
+        guard let data = message.data(using: .utf8) else { return }
+        webSocketTask?.send(.string(message)) { error in
+            if let error = error {
+                print(error.localizedDescription)
+            }
+        }
     }
 }
