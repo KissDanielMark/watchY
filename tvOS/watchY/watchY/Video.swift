@@ -11,11 +11,12 @@ import AVFoundation
 
 struct Video: View {
     @State var vidURL = URL(string: "/")
-    @State var urlText = "http://16.170.232.25:3001/movie"
+    @State var urlText = ""
     @State var show = false
+    let ws = Websocket()
     var body: some View {
-        let play = AVPlayer(url: (vidURL ?? URL(string: "/"))!)
-        let ws = Websocket()
+        @State var play = AVPlayer(url: (vidURL ?? URL(string: "/"))!)
+        
         VStack {
             Spacer()
             HStack {
@@ -26,7 +27,9 @@ struct Video: View {
                 Spacer()
         }
             .padding()
-            Button(action: {vidURL = URL(string: urlText)
+            Button(action: {
+                vidURL = URL(string: "http://"+urlText+":3001/movie")
+                ws.connect(urlString: urlText)
                 self.show = true
             }) {
                 Text("Done")
@@ -34,11 +37,14 @@ struct Video: View {
             Spacer()
         }
             .sheet(isPresented: $show) {
-                AVPlayerVieww(videoURL: $vidURL, player: play)
+                AVPlayerView(videoURL: $vidURL, player: play)
                     .edgesIgnoringSafeArea(.all)
                     .onDisappear() {
                         play.pause()
                     }
+                    .onPlayPauseCommand(perform: {
+                        ws.playPausePressed()
+                            })
             }
     }
 }
@@ -50,7 +56,7 @@ struct Video_Previews: PreviewProvider {
 }
 
 
-struct AVPlayerVieww: UIViewControllerRepresentable {
+struct AVPlayerView: UIViewControllerRepresentable {
 
     @Binding var videoURL: URL?
     var player: AVPlayer
@@ -69,16 +75,17 @@ struct AVPlayerVieww: UIViewControllerRepresentable {
 
 class Websocket: ObservableObject {
     @Published var messages = [String]()
+    var isPlaying = false
     
     private var webSocketTask: URLSessionWebSocketTask?
     
     init() {
-        self.connect()
+       print("WebSocket init")
     }
     
-    private func connect() {
+    func connect(urlString: String) {
         print("Connct to ws")
-        guard let url = URL(string: "ws://localhost:3000/") else { return }
+        guard let url = URL(string: "ws://"+urlString+":3000/") else { return }
         let request = URLRequest(url: url)
         webSocketTask = URLSession.shared.webSocketTask(with: request)
         webSocketTask?.resume()
@@ -93,8 +100,9 @@ class Websocket: ObservableObject {
             case .success(let message):
                 switch message {
                 case .string(let text):
+                    print(text)
                     self.messages.append(text)
-                case .data(let data):
+                case .data(_):
                     // Handle binary data
                     break
                 @unknown default:
@@ -105,11 +113,27 @@ class Websocket: ObservableObject {
     }
     
     func sendMessage(_ message: String) {
-        guard let data = message.data(using: .utf8) else { return }
+        guard message.data(using: .utf8) != nil else { return }
         webSocketTask?.send(.string(message)) { error in
             if let error = error {
                 print(error.localizedDescription)
             }
         }
     }
+    
+    func playPausePressed(){
+        print("playPause_pressed")
+        if(isPlaying == false){
+            print("START")
+            isPlaying = true
+            sendMessage("start")
+        }
+        else{
+            print("STOP")
+            isPlaying = false
+            sendMessage("stop")
+        }
+        
+    }
+    
 }

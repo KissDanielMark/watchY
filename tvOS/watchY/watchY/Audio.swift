@@ -33,7 +33,7 @@ struct Audio: View {
             Spacer()
         }
             .sheet(isPresented: $show) {
-                AVPlayerVieww(videoURL: $audioURL, player: play)
+                AVPlayerView(videoURL: $audioURL, player: play)
                     .edgesIgnoringSafeArea(.all)
                     .onDisappear() {
                         play.pause()
