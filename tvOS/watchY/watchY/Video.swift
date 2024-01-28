@@ -8,15 +8,21 @@
 import SwiftUI
 import AVKit
 import AVFoundation
+import Foundation
+
+struct Message: Codable {
+    let currentTime: Double
+    let state: String
+}
+
 
 struct Video: View {
     @State var vidURL = URL(string: "/")
-    @State var urlText = ""
+    @State var urlText = "51.20.31.154"
     @State var show = false
     let ws = Websocket()
     var body: some View {
-        @State var play = AVPlayer(url: (vidURL ?? URL(string: "/"))!)
-        
+        var player = AVPlayer(url: (vidURL ?? URL(string: "/"))!)
         VStack {
             Spacer()
             HStack {
@@ -28,6 +34,7 @@ struct Video: View {
         }
             .padding()
             Button(action: {
+                ws.setPalyer(inputPlayer: player)
                 vidURL = URL(string: "http://"+urlText+":3001/movie")
                 ws.connect(urlString: urlText)
                 self.show = true
@@ -37,10 +44,10 @@ struct Video: View {
             Spacer()
         }
             .sheet(isPresented: $show) {
-                AVPlayerView(videoURL: $vidURL, player: play)
+                AVPlayerView(videoURL: $vidURL, player: player)
                     .edgesIgnoringSafeArea(.all)
                     .onDisappear() {
-                        play.pause()
+                        player.pause()
                     }
                     .onPlayPauseCommand(perform: {
                         ws.playPausePressed()
@@ -48,13 +55,6 @@ struct Video: View {
             }
     }
 }
-
-struct Video_Previews: PreviewProvider {
-    static var previews: some View {
-        Video()
-    }
-}
-
 
 struct AVPlayerView: UIViewControllerRepresentable {
 
@@ -76,11 +76,19 @@ struct AVPlayerView: UIViewControllerRepresentable {
 class Websocket: ObservableObject {
     @Published var messages = [String]()
     var isPlaying = false
+    var player: AVPlayer
     
     private var webSocketTask: URLSessionWebSocketTask?
     
     init() {
        print("WebSocket init")
+        player = AVPlayer()
+    }
+    
+    func setPalyer(inputPlayer: AVPlayer){
+        print("Settingn player")
+        player = inputPlayer
+        print(player.currentTime().seconds)
     }
     
     func connect(urlString: String) {
@@ -102,22 +110,63 @@ class Websocket: ObservableObject {
                 case .string(let text):
                     print(text)
                     self.messages.append(text)
-                case .data(_):
+
+                case .data(let binaryData):
                     // Handle binary data
-                    break
+                    print("Received binary data")
+                    print(binaryData)
+                    
+                    // Convert binary data to Data
+                    let data = Data(binaryData)
+
+                    // Assuming the received data is a JSON string, try to parse it
+                    do {
+                        let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
+                        // Handle the JSON object as needed
+                        print("Received JSON data: \(jsonObject)")
+                        if let jsonDictionary = jsonObject as? [String: Any] {
+                                // Access the "currentTime" field
+                                if let currentTime = jsonDictionary["currentTime"] as? Double {
+                                    print("Current Time: \(currentTime)")
+                                } else {
+                                    print("Field 'currentTime' not found or not a Double.")
+                                }
+
+                                // Access the "state" field
+                                if let state = jsonDictionary["state"] as? String {
+                                    print("State: \(state)")
+                                } else {
+                                    print("Field 'state' not found or not a String.")
+                                }
+                            } else {
+                                print("JSON data is not a dictionary.")
+                            }
+                    } catch {
+                        print("Error parsing JSON: \(error.localizedDescription)")
+                    }
+
                 @unknown default:
                     break
                 }
             }
         }
     }
+
     
-    func sendMessage(_ message: String) {
-        guard message.data(using: .utf8) != nil else { return }
-        webSocketTask?.send(.string(message)) { error in
-            if let error = error {
-                print(error.localizedDescription)
+    
+    func sendMessage(_ message: Message) {
+        do {
+            let jsonData = try JSONEncoder().encode(message)
+            guard let jsonString = String(data: jsonData, encoding: .utf8) else {
+                return
             }
+            webSocketTask?.send(.string(jsonString)) { error in
+                if let error = error {
+                    print(error.localizedDescription)
+                }
+            }
+        } catch {
+            print(error.localizedDescription)
         }
     }
     
@@ -125,13 +174,16 @@ class Websocket: ObservableObject {
         print("playPause_pressed")
         if(isPlaying == false){
             print("START")
+            
             isPlaying = true
-            sendMessage("start")
+            sendMessage(Message(currentTime: player.currentTime().seconds, state: "start"))
+            player.play()
         }
         else{
             print("STOP")
+            player.pause()
             isPlaying = false
-            sendMessage("stop")
+            sendMessage(Message(currentTime: player.currentTime().seconds, state: "stop"))
         }
         
     }
