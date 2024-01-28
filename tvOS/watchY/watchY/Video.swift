@@ -21,8 +21,9 @@ struct Video: View {
     @State var urlText = "51.20.31.154"
     @State var show = false
     let ws = Websocket()
+    @State var player = AVPlayer()
     var body: some View {
-        var player = AVPlayer(url: (vidURL ?? URL(string: "/"))!)
+        
         VStack {
             Spacer()
             HStack {
@@ -42,24 +43,25 @@ struct Video: View {
                 Text("Done")
             }
             Spacer()
-        }
+        }.onAppear(perform: {
+            player = AVPlayer(url: (vidURL ?? URL(string: "/"))!)
+        })
             .sheet(isPresented: $show) {
-                AVPlayerView(videoURL: $vidURL, player: player)
+                AVPlayerView(player: $player)
                     .edgesIgnoringSafeArea(.all)
                     .onDisappear() {
                         player.pause()
                     }
                     .onPlayPauseCommand(perform: {
                         ws.playPausePressed()
-                            })
+                })
             }
     }
 }
 
 struct AVPlayerView: UIViewControllerRepresentable {
-
-    @Binding var videoURL: URL?
-    var player: AVPlayer
+    
+    @Binding var player: AVPlayer
     
     func updateUIViewController(_ playerController: AVPlayerViewController, context: Context) {
         playerController.modalPresentationStyle = .fullScreen
@@ -174,7 +176,6 @@ class Websocket: ObservableObject {
         print("playPause_pressed")
         if(isPlaying == false){
             print("START")
-            
             isPlaying = true
             sendMessage(Message(currentTime: player.currentTime().seconds, state: "start"))
             player.play()
