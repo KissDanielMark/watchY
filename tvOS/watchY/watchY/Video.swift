@@ -50,11 +50,12 @@ struct Video: View {
                 AVPlayerView(player: $player)
                     .edgesIgnoringSafeArea(.all)
                     .onDisappear() {
+                        print("ez")
                         player.pause()
                     }
                     .onPlayPauseCommand(perform: {
                         ws.playPausePressed()
-                })
+                    })
             }
     }
 }
@@ -67,7 +68,7 @@ struct AVPlayerView: UIViewControllerRepresentable {
         playerController.modalPresentationStyle = .fullScreen
         playerController.allowsPictureInPicturePlayback = true
         playerController.player = player
-        playerController.player?.play()
+        //playerController.player?.play()
     }
 
     func makeUIViewController(context: Context) -> AVPlayerViewController {
@@ -140,6 +141,11 @@ class Websocket: ObservableObject {
                                 } else {
                                     print("Field 'state' not found or not a String.")
                                 }
+                            
+                            self.handleMessage(currentTime: jsonDictionary["currentTime"] as? Double ?? 0.0, state: jsonDictionary["state"] as? String ?? "stop")
+                            
+                            
+                            
                             } else {
                                 print("JSON data is not a dictionary.")
                             }
@@ -167,6 +173,7 @@ class Websocket: ObservableObject {
                     print(error.localizedDescription)
                 }
             }
+            receiveMessage()
         } catch {
             print(error.localizedDescription)
         }
@@ -175,18 +182,52 @@ class Websocket: ObservableObject {
     func playPausePressed(){
         print("playPause_pressed")
         if(isPlaying == false){
-            print("START")
-            isPlaying = true
-            sendMessage(Message(currentTime: player.currentTime().seconds, state: "start"))
-            player.play()
+            playVideo()
         }
         else{
-            print("STOP")
-            player.pause()
-            isPlaying = false
-            sendMessage(Message(currentTime: player.currentTime().seconds, state: "stop"))
+            pauseVideo()
+        }
+    }
+    
+    func playVideo(){
+        print("Play video")
+        isPlaying.toggle()
+        sendMessage(Message(currentTime: player.currentTime().seconds, state: "start"))
+        player.play()
+    }
+    
+    func pauseVideo(){
+        print("Pausing video")
+        player.pause()
+        isPlaying.toggle()
+        sendMessage(Message(currentTime: player.currentTime().seconds, state: "stop"))
+    }
+    
+    func sync(inputSeconds: Double){
+        print("Sync")
+        DispatchQueue.main.async {
+            print("meg ez is jo")
+            // Perform UI-related updates here
+            let seekTime = CMTime(seconds: inputSeconds, preferredTimescale: 1)
+            self.player.seek(to: seekTime)
         }
         
+    }
+    
+    func handleMessage(currentTime: Double, state: String){
+        sync(inputSeconds: currentTime)
+        print("ez mar nme tetsuiks")
+        print(state)
+        DispatchQueue.main.async {
+            if(state == "start")
+            {
+                self.player.play()
+            }
+            else if(state == "stop")
+            {
+                self.player.pause()
+            }
+        }
     }
     
 }
