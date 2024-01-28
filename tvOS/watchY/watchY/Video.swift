@@ -18,14 +18,24 @@ struct Message: Codable {
 
 struct Video: View {
     @State var vidURL = URL(string: "/")
-    @State var urlText = "51.20.31.154"
+    @State var urlText = ""
     @State var show = false
     let ws = Websocket()
     @State var player = AVPlayer()
     var body: some View {
         
         VStack {
+            
+            // Add an Image view
+            Text("watcHy").font(.custom(
+                "AmericanTypewriter",
+                fixedSize: 36).bold())
+            .foregroundColor(.yellow)
+            Image(uiImage: UIImage(named: "watchy7")!) // You can replace "photo" with the name of the system image or use a custom image
+                .resizable()
+                .frame(width: 350, height: 350) // Adjust the size as needed
             Spacer()
+            
             HStack {
                 Spacer()
                 Text("Enter URL: ")

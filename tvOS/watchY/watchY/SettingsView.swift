@@ -14,12 +14,12 @@ struct SettingsView: View {
             HStack {
                 Text("Version")
                 Spacer()
-                Text("1.1")
+                Text("1.0")
             }
             HStack {
                 Text("Build")
                 Spacer()
-                Text("3")
+                Text("1")
             }
             }
         }
