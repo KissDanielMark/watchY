@@ -47,6 +47,7 @@ server.listen(PORT, () => {
 });
 
 app.get("/movie", (req, res) => {
+  console.log("/movie requested");
   const range = req.headers.range;
 
   if (!range) {
